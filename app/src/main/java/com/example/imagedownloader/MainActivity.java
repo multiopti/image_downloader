@@ -1,3 +1,5 @@
+// see https://developer.huawei.com/consumer/en/doc/development/hiai-Guides/text-recognition-0000001050040053
+
 package com.example.imagedownloader;
 
 import androidx.appcompat.app.AppCompatActivity;
