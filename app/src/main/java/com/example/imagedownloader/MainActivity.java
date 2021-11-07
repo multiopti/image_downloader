@@ -12,11 +12,24 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.huawei.hms.mlsdk.MLAnalyzerFactory;
+import com.huawei.hms.mlsdk.common.MLFrame;
+import com.huawei.hms.mlsdk.text.MLText;
+import com.huawei.hms.mlsdk.text.MLTextAnalyzer;
+
+import com.huawei.hmf.tasks.OnFailureListener;
+import com.huawei.hmf.tasks.OnSuccessListener;
+import com.huawei.hmf.tasks.Task;
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
     Button btnDownload;
@@ -79,7 +92,48 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
             imageView.setImageBitmap(bitmap);
-            Toast.makeText(MainActivity.this, "Downloaded Successfully!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "Downloaded", Toast.LENGTH_SHORT).show();
+
+            MLTextAnalyzer analyzer = MLAnalyzerFactory.getInstance().getLocalTextAnalyzer();
+            // Create an MLFrame object using the bitmap, which is the image data in bitmap format.
+            MLFrame frame = MLFrame.fromBitmap(bitmap);
+
+            Task<MLText> task = analyzer.asyncAnalyseFrame(frame);
+            task.addOnSuccessListener(new OnSuccessListener<MLText>() {
+                @Override
+                public void onSuccess(MLText text) {
+                    // Processing for successful recognition.
+                    String result = "";
+                    List<MLText.Block> blocks = text.getBlocks();
+                    for (MLText.Block block : blocks) {
+                        List<MLText.TextLine> lines = block.getContents();
+                        for (MLText.TextLine line : lines) {
+                            List<MLText.Word> words = line.getContents();
+                            for (MLText.Word word : words) {
+                                result += word.getStringValue() + " ";
+                            }
+                        }
+                        result += "\n";
+                    }
+                    Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(Exception e) {
+                    // Processing logic for recognition failure.
+                    Toast.makeText(MainActivity.this, "Error, sorry", Toast.LENGTH_LONG).show();
+                }
+            });
+
+            try {
+                if (analyzer != null) {
+                    analyzer.stop();
+                }
+            } catch (IOException e) {
+                // Exception handling.
+            }
+
+
         }
     }
 }

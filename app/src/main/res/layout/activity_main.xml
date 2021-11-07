@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <EditText
-        android:text="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Android_robot.png/756px-Android_robot.png"
+        android:text="https://i.stack.imgur.com/WiDpa.jpg"
         android:id="@+id/URL"
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
